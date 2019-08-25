@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace：命名空间，用于隔离sql语句，后继有重要重要
+	 #{}：点位符，相当于jdbc的?
+	 ${}：字符串拼接指令，如果入参为普通数据类型{}内部只写value
+-->
+<!-- 动态代理开发规则：
+	 1、namespace必需是接口的全路径名
+	 2、接口的方法名必需与sql id 一致
+	 3、接口的入参与parameterType类型一致
+	 4、接口的返回值必须与resultType类型一致
+-->
+<mapper namespace="com.springboot.mapper.UserMapper">
+	<select id="getUserByUsernameAndPassword" parameterType="User" resultType="User">
+		 SELECT
+			  `uid`,
+			  `username`,
+			  `password`,
+			  `name`,
+			  `email`,
+			  `telephone`,
+			  `createtime`,
+			  `sex`
+			FROM `user` 
+			WHERE password = #{password}
+			AND telephone =  #{telephone}
+	</select>
+	
+<!-- 	在使用MyBatis做持久层时，insert语句默认是不返回记录的主键值，而是返回插入的记录条数；显然，假如主键是你生成后插入的， -->	
+<!-- 	自然你已经有主键了，显然不需要我们再去获得，所以我们这里处理的是当主键是数据库中主动生成的，例如主键是自增长的。如果业务 -->
+<!-- 	层需要得到记录的主键（自增长）时，可以通过配置的方式来完成这个功能。 -->
+	<insert id="insertUser" parameterType="User" >
+		INSERT INTO `user`
+            (`uid`,
+             `password`,
+             `name`,
+             `email`,
+             `telephone`,
+             `createtime`)
+		VALUES (#{uid},
+		        #{password},
+		        #{name},
+		        #{email},
+		        #{telephone},
+		        #{createtime})
+	</insert>
+	
+	<update id="updateUser" parameterType="user">
+		UPDATE `user`
+			SET
+			  `username` = #{username},
+			  `password` = #{password},
+			  `name` = #{name},
+			  `email` = #{email},
+			  `telephone` = #{telephone},
+			  `createtime` = #{createtime},
+			  `sex` = #{sex}
+			WHERE `uid` = #{uid}
+	</update>
+</mapper>
+

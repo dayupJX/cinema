@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace：命名空间，用于隔离sql语句，后继有重要重要
+	 #{}：点位符，相当于jdbc的?
+	 ${}：字符串拼接指令，如果入参为普通数据类型{}内部只写value
+-->
+<!-- 动态代理开发规则：
+	 1、namespace必需是接口的全路径名
+	 2、接口的方法名必需与sql id 一致
+	 3、接口的入参与parameterType类型一致
+	 4、接口的返回值必须与resultType类型一致
+-->
+<mapper namespace="com.springboot.mapper.OrderMapper">
+ 	<select id="getAllFilms" resultType="Film">
+ 		SELECT
+		  `fid`,
+		  `fname`,
+		  `fdirector`,
+		  `dateToOn`,
+		  `mainStar`,
+		  `type`,
+		  `country`,
+		  `filmLength`,
+		  `fdesc`,
+		  `mainImage`,
+		  `trailer`,
+		  `fimage1`,
+		  `fimage2`,
+		  `fimage3`,
+		  `isHot`,
+		  `isOn`,
+		  `price`
+		FROM `film`
+ 	</select>
+ 	
+ 	<select id="getFilmById" parameterType="String" resultType="Film">
+ 		 		SELECT
+		  `fid`,
+		  `fname`,
+		  `fdirector`,
+		  `dateToOn`,
+		  `mainStar`,
+		  `type`,
+		  `country`,
+		  `filmLength`,
+		  `fdesc`,
+		  `mainImage`,
+		  `trailer`,
+		  `fimage1`,
+		  `fimage2`,
+		  `fimage3`,
+		  `isHot`,
+		  `isOn`,
+		  `price`
+		FROM `film`
+		WHERE fid = #{fid}
+ 	</select>
+ 	
+ 	<select id="getOrdersByUid" resultMap="order_user_film_map">
+ 		SELECT 
+			 o.`oid`,
+			 o.`total`,
+			 o.`fid`,
+			 o.`quantity`,
+			 o.`uid`,
+			 o.`seatRow`,
+			 o.`seatCol`,
+			 u.`username`,
+			 u.`password`,
+			 u.`email`,
+			 u.`telephone`,
+			 u.`createtime`,
+			 u.`sex`,
+			 u.`name`,
+			 f.`fname`,
+			 f.`mainImage`,
+			 f.`price`,
+			 p.`playDate`
+		FROM `orders`  o
+		JOIN `user`  u ON o.uid = u.uid
+		JOIN film f ON f.`fid` = o.`fid`
+		JOIN play p   ON o.pid = p.pid
+ 	</select>
+ 	
+ 	<resultMap type="orders" id="order_user_film_map">
+ 		<id property="oid" column="oid"/>
+		<result property="total" column="total"/>
+		<result property="quantity" column="quantity"/>
+		<result property="uid" column="uid"/>
+		<result property="seatRow" column="seatRow"/>
+		<result property="seatCol" column="seatCol"/>
+		
+		<association property="user" javaType="user">
+			<id property="uid" column="uid"/>
+			<result property="username" column="username"/>
+			<result property="password" column="password"/>
+			<result property="name" column="name"/>
+			<result property="email" column="email"/>
+			<result property="telephone" column="telephone"/>
+			<result property="createtime" column="createtime"/>
+			<result property="sex" column="sex"/>
+		</association>
+		
+		<association property="film" javaType="film">
+			<id property="fid" column="fid"/>
+			<result property="fname" column="fname"/>
+			<result property="mainImage" column="mainImage"/>
+			<result property="price" column="price"/>
+		</association>
+		
+		<association property="play" javaType="play">
+			<result property="playDate" column="playDate"/>
+		</association>
+ 	</resultMap>
+</mapper>
+

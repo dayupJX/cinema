@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace：命名空间，用于隔离sql语句，后继有重要重要
+	 #{}：点位符，相当于jdbc的?
+	 ${}：字符串拼接指令，如果入参为普通数据类型{}内部只写value
+-->
+<!-- 动态代理开发规则：
+	 1、namespace必需是接口的全路径名
+	 2、接口的方法名必需与sql id 一致
+	 3、接口的入参与parameterType类型一致
+	 4、接口的返回值必须与resultType类型一致
+-->
+<mapper namespace="com.springboot.mapper.ContentMapper">
+ 	 <select id="getContent" resultType="Content">
+ 	 	SELECT
+		  `cid`,
+		  `pic1`,
+		  `pic2`,
+		  `pic3`,
+		  `created`
+		FROM `content`
+ 	 </select>
+ 	 
+ 	 <select id="getCidOfCinema" resultType="String">
+ 	 	select cid from cinema
+ 	 </select>
+ 	 
+ 	 <select id="getCinemaByCidAndFid" parameterType="HashMap" resultMap="cinema_map">
+ 	 	SELECT  
+ 	 	  p.pid,
+		  p.playDate,
+		  f.fname,
+		  f.mainImage,
+		  h.hallName,
+		  c.cname,
+		  c.cid
+		FROM play p
+		JOIN film f ON p.fid = f.fid
+		JOIN hall h ON p.hid = h.hid
+		JOIN cinema c ON h.cid = c.cid	
+		WHERE f.fid=#{fid}
+		AND c.cid=#{cid}
+ 	 </select>
+ 	 
+ 	 <resultMap type="Cinema" id="cinema_map">
+ 	 	<id property="cid" column="cid"/>
+		<result property="cname" column="cname"/>
+		
+		<collection property="halls" ofType="Hall">
+			<result property="hallName" column="hallName"/>
+			
+			<collection property="plays" ofType="Play">
+				<result property="pid" column="pid"/>
+				<result property="playDate" column="playDate"/>
+				
+				<association property="film" javaType="Film">
+					<result property="fname" column="fname"/>
+					<result property="mainImage" column="mainImage"/>
+				</association>
+				
+			</collection>
+			
+		</collection>
+ 	 </resultMap>
+ 	 
+ 	 <select id="getPlayByPid" parameterType="String" resultMap="play_map">
+		 SELECT
+		  p.`pid`,
+		  p.`hid`,
+		  p.`playDate`,
+		  h.`hallName`,
+		  h.`seatRow`,
+		  h.`seatCol`
+		 FROM  `play` p
+		 JOIN  `hall` h ON p.`hid`=h.`hid`
+		WHERE p.`pid` = #{pid}
+ 	 </select>
+ 	 <resultMap type="Play" id="play_map">
+ 	 	<id property="pid" column="pid"/>
+ 	 	<result property="playDate" column="playDate"/>
+ 	 	
+ 	 	<association property="hall" javaType="Hall">
+ 	 		<id property="hid" column="hid"/>
+ 	 		<result property="hallName" column="hallName"/>
+ 	 		<result property="seatRow" column="seatRow"/>
+ 	 		<result property="seatCol" column="seatCol"/>
+ 	 	
+ 	 	</association>
+ 	 </resultMap>
+ 	 
+  	 <select id="getHallByHid" parameterType="String" resultType="Hall">
+	 	 SELECT
+		  `hid`,
+		  `hallName`,
+		  `seatRow`,
+		  `seatCol`,
+		  `cid`
+		FROM `hall`
+		WHERE hid = #{hid}
+ 	 </select>
+ 	 
+   	 <select id="getOrdersByPid" parameterType="String" resultType="Orders">
+	 	SELECT
+		  `oid`,
+		  `total`,
+		  `fid`,
+		  `quantity`,
+		  `uid`,
+		  `pid`,
+		  `seatRow`,
+		  `seatCol`
+		FROM `orders`
+		WHERE `pid`= #{pid}
+ 	 </select>
+ 	 
+ 	 <insert id="insertOrders" parameterType="Orders">
+ 	 	INSERT INTO  `orders`
+            ( `oid`,
+             `uid`,
+             `pid`,
+             `seatRow`,
+             `seatCol`)
+		VALUES ( #{oid},
+		        #{user.uid},
+		        #{play.pid},
+		        #{seatRow},
+		        #{seatCol});
+ 	 </insert>
+</mapper>
+
